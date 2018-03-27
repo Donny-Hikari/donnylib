@@ -1,3 +1,5 @@
+#pragma once
+
 #include <initializer_list>
 #include <stdexcept>
 
@@ -29,6 +31,12 @@ public:
     {
         _p = arr.begin();
         _sz = arr.size();
+    }
+
+    vector_view(const vector_view &that)
+    {
+        _p = that._p;
+        _sz = that._sz;
     }
 
     std::size_t size() const { return _sz; }
