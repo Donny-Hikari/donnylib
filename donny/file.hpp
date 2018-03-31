@@ -1,65 +1,12 @@
 #pragma once
 
 #include <cstdio>
+#include <cstdarg>
 #include <string>
 
+#include "base.hpp"
+
 namespace donny {
-	
-#if __WIN32 || __WIN64
-#define __WINOS__ 1
-#endif
-
-template<typename CharType>
-class simple_string
-{
-	typedef CharType* pointer;
-	typedef const CharType* const_pointer;
-	typedef CharType& reference;
-	typedef const CharType& const_reference;
-
-	typedef long SizeType;
-
-	pointer _data = nullptr;
-	SizeType _size = 0;
-
-public:
-	simple_string()
-	{
-	}
-	explicit simple_string(int n)
-		: _data(new CharType[n]{0})
-		, _size(n)
-	{
-	}
-	~simple_string()
-	{
-		delete[] _data;
-	}
-
-	SizeType size() const
-	{
-		return _size;
-	}
-
-	pointer data()
-	{
-		return _data;
-	}
-	const_pointer data() const
-	{
-		return _data;
-	}
-
-	operator pointer()
-	{
-		return _data;
-	}
-	operator const_pointer() const
-	{
-		return _data;
-	}
-
-};
 
 namespace filesystem {
 
@@ -104,22 +51,14 @@ class basic_file
 	typedef const char* const_str;
 	typedef const wchar_t* const_wstr;
 
-	using SizeType = long;
-	using StringType = std::basic_string<CharType>;
-	using BufStringType = donny::simple_string<CharType>;
-
 	const typename EOFDeterminer<CharType>::ValType
 		EOFValue = EOFDeterminer<CharType>::Val();
 
 public:
 
-#ifdef __WINOS__
-	const CharType lineBreak[2] = { '\r', '\n' };
-#elif __linux__
-	const CharType lineBreak[1] = { '\n' };
-#else // __MACH__
-	const CharType lineBreak[1] = { '\r' };
-#endif
+	using SizeType = long;
+	using StringType = std::basic_string<CharType>;
+	using BufStringType = donny::simple_string<CharType>;
 
 	enum SeekOrigin { begin = SEEK_SET, current = SEEK_CUR, end = SEEK_END };
 
@@ -155,7 +94,7 @@ public:
 		_pFile->_refCount = 2; // Cause there already has another
 							   // reference to this file
 	}
-	inline const FILE* getFILE()
+	inline FILE* getFILE()
 	{
 		return _File();
 	}
@@ -170,6 +109,39 @@ public:
 		size -= ftell(_File);
 		fseek(_File(), curpos, current);
 		return size;
+	}
+	
+	inline bool is_open() const
+	{
+		if (_File()) return true;
+		else return false;
+	}
+	inline bool eof() const
+	{
+		if ((_File() != nullptr) && (feof(_File()) == 0)) return false;
+		return true;
+	}
+	inline int error() const
+	{
+		return ferror(_File());
+	}
+	inline void clearerr()
+	{
+		::clearerr(_File());
+	}
+
+	inline SizeType tell() const
+	{
+		return ftell(_File());
+	}
+	inline bool seek(SizeType offset, SeekOrigin origin)
+	{
+		if (fseek(_File(), offset, origin)) return false;
+		else return true;
+	}
+	inline void rewind()
+	{
+		return ::rewind(_File());
 	}
 
 	inline bool open(const_str filename, const_str mode)
@@ -261,74 +233,76 @@ public:
 	{
 		return read(dest, sizeof(T), count);
 	}
-	// template<typename T>
-	// //Won't change the size of Dest.
-	// inline uint read(DPointer<T>& Dest, uint Count = 1) const
-	// {
-	// 	return read(Dest, sizeof(T), Count);
-	// }
-	// template<typename T>
-	// //Will change the size of Dest to Count.
-	// inline uint read(DPointer<T>* pDest, uint Count = 1) const
-	// {
-	// 	if (!pDest) return 0;
-	// 	pDest->New(Count);
-	// 	return read(*pDest, Count);
-	// }
 	inline uint read(void *dest, uint elementSize, uint count)
 	{
 		return fread(dest, elementSize, count, _File());
 	}
+
 	template<typename T>
 	inline uint write(const T *src, uint count = 1)
 	{
 		return write(src, sizeof(T), count);
 	}
-	// template<typename T>
-	// inline uint write(const DPointer<T>& Src, uint Count = 1)
-	// {
-	// 	return write(Src, sizeof(T), Count);
-	// }
 	inline uint write(const void *src, uint elementSize, uint count)
 	{
 		return fwrite(src, elementSize, count, _File());
 	}
+
+	inline int vscanf(const StringType format_, va_list args_)
+	{
+		return vfscanf(_File(), format_.c_str(), args_);
+	}
+	inline int scanf(const StringType format_, ...)
+	{
+        va_list args; va_start(args, format_);
+        return TRAP_RET( vscanf(format_, args), va_end(args) );
+	}
+
+    inline int vprint(const StringType format_, va_list args_)
+    {
+        return vfprintf(_File(), format_.c_str(), args_);
+    }
+    inline int print(const StringType format_, ...)
+    {
+        va_list args; va_start(args, format_);
+        return TRAP_RET( vprint(format_, args), va_end(args) );
+    }
+
 	inline int flush()
 	{
 		return fflush(_File());
 	}
+	
+#ifdef __WINOS__
+	const CharType lineBreak[3] = { '\r', '\n', '\0' };
+#elif __linux__
+	const CharType lineBreak[2] = { '\n', '\0' };
+#else // __MACH__
+	const CharType lineBreak[2] = { '\r', '\0' };
+#endif
+	const int nLineBreak = length_of_array(lineBreak) - 1;
 
-	inline bool is_open() const
+	uint newLine()
 	{
-		if (_File()) return true;
-		else return false;
+		return write(lineBreak, nLineBreak);
 	}
-	inline bool eof() const
+	bool isNewLine(bool bEat = true)
 	{
-		if ((_File() != nullptr) && (feof(_File()) == 0)) return false;
-		return true;
-	}
-	inline int error() const
-	{
-		return ferror(_File());
-	}
-	inline void clearerr()
-	{
-		::clearerr(_File());
-	}
+		CharType nxt[nLineBreak];
+		bool bNewLine = true;
 
-	inline SizeType tell() const
-	{
-		return ftell(_File());
-	}
-	inline bool seek(SizeType offset, SeekOrigin origin)
-	{
-		if (fseek(_File(), offset, origin)) return false;
-		else return true;
-	}
-	inline void rewind()
-	{
-		return ::rewind(_File());
+		uint nFed = read(nxt, nLineBreak);
+		if (nFed != nLineBreak)
+			bNewLine = false;
+
+		for (int ind = 0; bNewLine && ind < nLineBreak; ++ind)
+			if (nxt[ind] != lineBreak[ind])
+				bNewLine = false;
+		
+		if (!bNewLine || !bEat)
+			seek(-nFed, current);
+
+		return bNewLine;
 	}
 
 private:
