@@ -5,7 +5,6 @@
 
 #include <donny/logger.hpp>
 
-using namespace donny;
 using namespace donny::filesystem;
 
 int test_main(int, char**)
@@ -23,16 +22,16 @@ int test_main(int, char**)
 
     BOOST_CHECK( log.i(sHello, sWorld.c_str()) > nHelloWorld + logfile.nLineBreak );
 
-    log << "True: " << true << donny::endl;
-    log << "int: " << 123 << donny::endl;
-    log << "double: " << 1.0f/3 << donny::endl;
+    log << "True: " << true << endl;
+    log << "int: " << 123 << endl;
+    log << "double: " << 1.0f/3 << endl;
 
     std::string sHelloWorld = "Hello World";
-    log << sHelloWorld << donny::endl;
-    log.i() << sHelloWorld << donny::endl;
-    log.e() << sHelloWorld << donny::endl;
-    log.d() << sHelloWorld << donny::endl;
-    log.v() << sHelloWorld << donny::endl;
+    log << sHelloWorld << endl;
+    log.i() << sHelloWorld << endl;
+    log.e() << sHelloWorld << endl;
+    log.d() << sHelloWorld << endl;
+    log.v() << sHelloWorld << endl;
 
     return 0;
 }

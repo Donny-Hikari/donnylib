@@ -39,8 +39,11 @@ void readfile()
 
 void stdinout()
 {
-    string strin = scrin.gets('\n');
-    scrout.puts(strin);
+    string str;
+    cout << "Enter some text, end with a return: ";
+    str = scrin.gets('\n');
+    cout << "You have enter: ";
+    scrout.puts(str);
 }
 
 int main()
