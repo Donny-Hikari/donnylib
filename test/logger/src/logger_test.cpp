@@ -39,7 +39,9 @@ int test_logger()
     log.d() << "char: " << 'c' << endl;
     log.v() << "ulong: " << 342344534ul << endl;
     log.log() << "ushort: " << (short)19 << endl;
-    log << "byte: " << (u_char)28 << endl;
+
+    log.setPrefix(log.LOG, "[CUSTOM] ");
+    log.log() << "byte: " << (u_char)28 << endl;
 
     return 0;
 }
@@ -78,6 +80,9 @@ int test_wlogger()
     log.d() << L"char: " << L'c' << endl;
     log.v() << L"ulong: " << 342344534ul << endl;
     log.log() << L"ushort: " << (short)19 << endl;
+
+    log.setPrefix(log.LOG, L"[CUSTOM] ");
+    log.log() << L"byte: " << (u_char)28 << endl;
 
     return 0;
 }

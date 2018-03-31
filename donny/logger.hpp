@@ -2,7 +2,7 @@
  * donnylib - A lightweight library for c++
  * 
  * logger.hpp - A easy logger for c++
- * base : base.hpp, file.hpp
+ * base : base.hpp, file.hpp, file_stream.hpp
  * 
  * Author : Donny
  */
@@ -14,6 +14,7 @@
 #include <string>
 
 #include "file.hpp"
+#include "file_stream.hpp"
 
 namespace donny {
 

@@ -15,6 +15,7 @@
 #include <string>
 
 #include "file.hpp"
+#include "file_stream.hpp"
 
 namespace donny {
 namespace filesystem {
