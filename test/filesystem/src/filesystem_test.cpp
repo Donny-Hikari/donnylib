@@ -42,7 +42,7 @@ void stdinout()
     string str;
     cout << "Enter some text, end with a return: ";
     str = din.gets('\n');
-    cout << "You have enter: ";
+    cout << "You have entered: ";
     dout.puts(str);
 }
 

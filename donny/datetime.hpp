@@ -9,10 +9,10 @@
 
 #pragma once
 
-#include <cstdio>
-#include <cwchar>
+#include <iomanip>
 #include <ctime>
 #include <string>
+#include <sstream>
 
 #include "file.hpp"
 
@@ -61,58 +61,32 @@ template<typename CharType>
 const DateTimeString<CharType>
     getUTCTime(tm *gmtm, const CharType*);
 
+// dtformat example : %b %a %d %T %Y
 template<>
 const DateTimeString<char>
-    getUTCTime<char>(tm *gmtm, const char *dtformat)
+    getUTCTime<char>(tm *ptm, const char *dtformat)
 {
-    if (gmtm == nullptr || dtformat == nullptr)
+    if (ptm == nullptr || dtformat == nullptr)
         return "";
-
-    int sz = fprintf(
-        filesystem::dnull.getFILE(), dtformat,
-        getWeekday<char>(gmtm->tm_wday),
-        getMonth<char>(gmtm->tm_mon), gmtm->tm_mday,
-        gmtm->tm_hour, gmtm->tm_min, gmtm->tm_sec,
-        gmtm->tm_year + 1900
-    );
-    char buf[sz+1];
-
-    snprintf(
-        buf, sz+1, dtformat,
-        getWeekday<char>(gmtm->tm_wday),
-        getMonth<char>(gmtm->tm_mon), gmtm->tm_mday,
-        gmtm->tm_hour, gmtm->tm_min, gmtm->tm_sec,
-        gmtm->tm_year + 1900
-    );
+        
+    std::ostringstream buf;
+    buf << std::put_time(ptm, dtformat);
     
-    return buf;
+    return buf.str();
 }
 
+// dtformat example : %b %a %d %T %Y
 template<>
 const DateTimeString<wchar_t>
-    getUTCTime<wchar_t>(tm *gmtm, const wchar_t *dtformat)
+    getUTCTime<wchar_t>(tm *ptm, const wchar_t *dtformat)
 {
-    if (gmtm == nullptr || dtformat == nullptr)
+    if (ptm == nullptr || dtformat == nullptr)
         return L"";
-
-    int sz = fwprintf(
-        filesystem::wdnull.getFILE(), dtformat,
-        getWeekday<wchar_t>(gmtm->tm_wday),
-        getMonth<wchar_t>(gmtm->tm_mon), gmtm->tm_mday,
-        gmtm->tm_hour, gmtm->tm_min, gmtm->tm_sec,
-        gmtm->tm_year + 1900
-    );
-    wchar_t buf[sz+1];
-
-    swprintf(
-        buf, sz+1, dtformat,
-        getWeekday<wchar_t>(gmtm->tm_wday),
-        getMonth<wchar_t>(gmtm->tm_mon), gmtm->tm_mday,
-        gmtm->tm_hour, gmtm->tm_min, gmtm->tm_sec,
-        gmtm->tm_year + 1900
-    );
-
-    return buf;
+        
+    std::wostringstream buf;
+    buf << std::put_time(ptm, dtformat);
+    
+    return buf.str();
 }
 
 }

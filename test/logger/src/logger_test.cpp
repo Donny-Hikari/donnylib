@@ -72,7 +72,6 @@ int test_wlogger()
 
     log.println(L"");
     log << endl;
-    std::cout;
 
     log << L"True: " << true << endl;
     log.i() << L"int: " << 123 << endl;
@@ -87,10 +86,37 @@ int test_wlogger()
     return 0;
 }
 
+int test_screen_logger()
+{
+    donny::logger<> log(dout);
+
+    log.println("Hello World");
+
+    log << "True: " << true << endl;
+    log.i() << "int: " << 123 << endl;
+    log.e() << "double: " << 1.0f/3 << endl;
+    log.d() << "char: " << 'c' << endl;
+    log.v() << "ulong: " << 342344534ul << endl;
+    log.log() << "ushort: " << (short)19 << endl;
+
+    log.setPrefix(log.LOG, "[CUSTOM] ");
+    log.log() << "Custom prefix." << endl;
+    log.log() << "byte: " << (u_char)28 << endl;
+
+    log.setTimeStampFormat("{%F}{%r}");
+    log.log() << "New timestamp format." << endl;
+
+    log.useTimeStamp(false);
+    log.log() << "No timestamp." << endl;
+
+    return 0;
+}
+
 int test_main(int, char**)
 {
     test_logger();
     test_wlogger();
+    test_screen_logger();
 
     return 0;
 }

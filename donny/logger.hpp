@@ -44,6 +44,7 @@ public:
         : _out(out_)
         , _stream(_out)
         , _bUseTimeStamp(true)
+        , _dtFormat(AUTO_AW(CharType, "[%a %b %d %T %Y]"))
     {
         _prefixs[NONE] = AUTO_AW(CharType, "");
         _prefixs[INFO] = AUTO_AW(CharType, "[INFO] ");
@@ -118,10 +119,6 @@ public:
         return _prefixs[tp];
     }
 
-    inline int putTimeStamp()
-    {
-        return print(_getUTCTime());
-    }
     inline void useTimeStamp(bool bUseTimeStamp_)
     {
         _bUseTimeStamp = bUseTimeStamp_;
@@ -130,12 +127,26 @@ public:
     {
         return _bUseTimeStamp;
     }
+    inline int putTimeStamp()
+    {
+        return print(_getUTCTime());
+    }
+    inline StringType setTimeStampFormat(StringType newFormat)
+    {
+        StringType oldFormat = _dtFormat;
+        _dtFormat = newFormat;
+        return oldFormat;
+    }
+    inline StringType getTimeStampFormat()
+    {
+        return _dtFormat;
+    }
 
     inline int i(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( putTimeStamp()
+        return TRAP_RET( _logTimeStamp()
                        + print(_prefixs[INFO])
                        + vprintln(format_, args)
                        , va_end(args) );
@@ -144,7 +155,7 @@ public:
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( putTimeStamp()
+        return TRAP_RET( _logTimeStamp()
                        + print(_prefixs[ERR])
                        + vprintln(format_, args)
                        , va_end(args) );
@@ -153,7 +164,7 @@ public:
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( putTimeStamp()
+        return TRAP_RET( _logTimeStamp()
                        + print(_prefixs[DEB])
                        + vprintln(format_, args)
                        , va_end(args) );
@@ -162,7 +173,7 @@ public:
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( putTimeStamp()
+        return TRAP_RET( _logTimeStamp()
                        + print(_prefixs[VERB])
                        + vprintln(format_, args)
                        , va_end(args) );
@@ -171,7 +182,7 @@ public:
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( putTimeStamp()
+        return TRAP_RET( _logTimeStamp()
                        + print(_prefixs[LOG])
                        + vprintln(format_, args)
                        , va_end(args) );
@@ -179,31 +190,31 @@ public:
 
     inline logger_stream& i()
     {
-        putTimeStamp();
+        _logTimeStamp();
         print(_prefixs[INFO]);
         return _stream;
     }
     inline logger_stream& e()
     {
-        putTimeStamp();
+        _logTimeStamp();
         print(_prefixs[ERR]);
         return _stream;
     }
     inline logger_stream& d()
     {
-        putTimeStamp();
+        _logTimeStamp();
         print(_prefixs[DEB]);
         return _stream;
     }
     inline logger_stream& v()
     {
-        putTimeStamp();
+        _logTimeStamp();
         print(_prefixs[VERB]);
         return _stream;
     }
     inline logger_stream& log()
     {
-        putTimeStamp();
+        _logTimeStamp();
         print(_prefixs[LOG]);
         return _stream;
     }
@@ -211,7 +222,7 @@ public:
     template<typename AnyType>
     inline logger_stream& operator<<(AnyType any)
     {
-        putTimeStamp();
+        _logTimeStamp();
         // print(_prefixs[NONE]); // <-- NONE is ""
         return _stream << any;
     }
@@ -219,7 +230,7 @@ public:
     inline logger_stream& operator<<
         (logger_stream& (*_pf)(logger_stream&))
     {
-        putTimeStamp();
+        _logTimeStamp();
         return _stream << _pf;
     }
 
@@ -229,16 +240,20 @@ private:
 
     StringType _prefixs[PREFIX_COUNT];
 
+    StringType _dtFormat;
     bool _bUseTimeStamp;
-
-    const RawString dtformat =
-        AUTO_AW(CharType, "[%s %s %02d %02d:%02d:%02d %04d]");
 
     StringType _getUTCTime()
     {
         time_t now = time(nullptr);
         tm *gmtm = gmtime(&now);
-        return datetime::getUTCTime(gmtm, dtformat);
+        return datetime::getUTCTime(gmtm, _dtFormat.c_str());
+    }
+
+    int _logTimeStamp()
+    {
+        if (!_bUseTimeStamp) return 0;
+        return putTimeStamp();
     }
 
 };

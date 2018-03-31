@@ -150,6 +150,11 @@ struct DeduceSpecifier<wchar_t*, CharType> {
 };
 
 template<typename T, typename CharType = char>
+constexpr const CharType* deduceSpecifier() {
+	T obj;
+	return DeduceSpecifier<T, CharType>()(obj);
+}
+template<typename T, typename CharType = char>
 constexpr const CharType* deduceSpecifier(T obj) {
 	return DeduceSpecifier<T, CharType>()(obj);
 }
