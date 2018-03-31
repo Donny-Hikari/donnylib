@@ -35,46 +35,94 @@ constexpr size_t length_of_array(T (&arr)[N]) {
 		RET_TRAP(_RET_STATEMENT_, _TRAP_STATEMENT_) \
 	}()
 
-// Deduce the specifier for printf or scanf
-template<typename T>
-inline const char* deduceSpecifier(T obj)
-{ return ""; }
-template<>
-constexpr const char*
-    deduceSpecifier<int>(int)
-{ return "%d"; }
-template<>
-constexpr const char*
-    deduceSpecifier<unsigned int>(unsigned int)
-{ return "%ud"; }
-template<>
-constexpr const char*
-    deduceSpecifier<long>(long)
-{ return "%ld"; }
-template<>
-constexpr const char*
-    deduceSpecifier<unsigned long>(unsigned long)
-{ return "%uld"; }
-template<>
-constexpr const char*
-    deduceSpecifier<long long>(long long)
-{ return "%lld"; }
-template<>
-constexpr const char*
-    deduceSpecifier<unsigned long long>(unsigned long long)
-{ return "%ulld"; }
-template<>
-constexpr const char*
-    deduceSpecifier<double>(double)
-{ return "%f"; }
-template<>
-constexpr const char*
-    deduceSpecifier<long double>(long double)
-{ return "%Lf"; }
-template<>
-inline const char*
-    deduceSpecifier<bool>(bool obj)
-{ return obj ? "True" : "False"; }
+// auto return char* or wchar_t*
+class AUTOAW_HELPER
+{
+public:
+	constexpr AUTOAW_HELPER(char *str, wchar_t *wstr)
+		: _str(str), _wstr(wstr)
+	{
+	}
+
+	constexpr operator char*() { return _str; }
+	constexpr operator wchar_t*() { return _wstr; }
+
+private:
+	char* _str;
+	wchar_t* _wstr;
+	
+};
+#define AUTO_AW(_CharType_, _str_) \
+	( (_CharType_*) AUTOAW_HELPER(_str_, L##_str_) )
+
+// deduce the specifier for printf or scanf
+template<typename T, typename CharType = char>
+struct DeduceSpecifier {
+	constexpr const CharType* operator()(T obj)
+	{ return AUTO_AW(CharType, ""); }
+};
+template<typename CharType>
+struct DeduceSpecifier<int, CharType> {
+	constexpr const CharType* operator()(int)
+	{ return AUTO_AW(CharType, "%d"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<unsigned int, CharType> {
+	constexpr const CharType* operator()(unsigned int)
+	{ return AUTO_AW(CharType, "%ud"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<long, CharType> {
+	constexpr const CharType* operator()(long)
+	{ return AUTO_AW(CharType, "%ld"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<unsigned long, CharType> {
+	constexpr const CharType* operator()(unsigned long)
+	{ return AUTO_AW(CharType, "%uld"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<long long, CharType> {
+	constexpr const CharType* operator()(long long)
+	{ return AUTO_AW(CharType, "%lld"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<unsigned long long, CharType> {
+	constexpr const CharType* operator()(unsigned long long)
+	{ return AUTO_AW(CharType, "%ulld"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<double, CharType> {
+	constexpr const CharType* operator()(double)
+	{ return AUTO_AW(CharType, "%f"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<long double, CharType> {
+	constexpr const CharType* operator()(long double)
+	{ return AUTO_AW(CharType, "%Lf"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<bool, CharType> {
+	constexpr const CharType* operator()(bool obj)
+	{
+		if (obj) return AUTO_AW(CharType, "True");
+		else return AUTO_AW(CharType, "False");
+	}
+};
+template<typename CharType>
+struct DeduceSpecifier<char, CharType> {
+	constexpr const CharType* operator()(char)
+	{ return AUTO_AW(CharType, "%c"); }
+};
+template<typename CharType>
+struct DeduceSpecifier<wchar_t, CharType> {
+	constexpr const CharType* operator()(wchar_t)
+	{ return AUTO_AW(CharType, "%lc"); }
+};
+template<typename T, typename CharType>
+constexpr const CharType* deduceSpecifier(T obj) {
+	return DeduceSpecifier<T, CharType>()(obj);
+}
 
 // A simple string
 template<typename CharType>

@@ -176,7 +176,7 @@ public:
     inline logger_stream& operator<<(AnyType any)
     {
         // print(_prefixs[NONE]); // <-- NONE is ""
-        return _stream;
+        return _stream << any;
     }
 
 private:

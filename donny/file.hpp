@@ -257,25 +257,11 @@ public:
 		return fwrite(src, elementSize, count, _File());
 	}
 
-	inline int vscanf(const StringType format_, va_list args_)
-	{
-		return vfscanf(_File(), format_.c_str(), args_);
-	}
-	inline int scanf(const StringType format_, ...)
-	{
-        va_list args; va_start(args, format_);
-        return TRAP_RET( vscanf(format_, args), va_end(args) );
-	}
+	inline int vscanf(const StringType format_, va_list args_);
+	inline int scanf(const StringType format_, ...);
 
-    inline int vprint(const StringType format_, va_list args_)
-    {
-        return vfprintf(_File(), format_.c_str(), args_);
-    }
-    inline int print(const StringType format_, ...)
-    {
-        va_list args; va_start(args, format_);
-        return TRAP_RET( vprint(format_, args), va_end(args) );
-    }
+    inline int vprint(const StringType format_, va_list args_);
+    inline int print(const StringType format_, ...);
 
 	inline int flush()
 	{
@@ -334,6 +320,63 @@ private:
 
 };
 
+typedef basic_file<char> file;
+typedef basic_file<wchar_t> wfile;
+typedef basic_file<char16_t> u16file;
+typedef basic_file<char32_t> u32file;
+
+static file scrin(stdin);
+static file scrout(stdout);
+static file screrr(stderr);
+
+template<>
+inline int file::vscanf(const file::StringType format_, va_list args_)
+{
+	return vfscanf(_File(), format_.c_str(), args_);
+}
+template<>
+inline int file::scanf(const file::StringType format_, ...)
+{
+	va_list args; va_start(args, format_);
+	return TRAP_RET( vscanf(format_, args), va_end(args) );
+}
+template<>
+inline int file::vprint(const file::StringType format_, va_list args_)
+{
+	return vfprintf(_File(), format_.c_str(), args_);
+}
+template<>
+inline int file::print(const file::StringType format_, ...)
+{
+	va_list args; va_start(args, format_);
+	return TRAP_RET( vprint(format_, args), va_end(args) );
+}
+
+
+template<>
+inline int wfile::vscanf(const wfile::StringType format_, va_list args_)
+{
+	return vfwscanf(_File(), format_.c_str(), args_);
+}
+template<>
+inline int wfile::scanf(const wfile::StringType format_, ...)
+{
+	va_list args; va_start(args, format_);
+	return TRAP_RET( vscanf(format_, args), va_end(args) );
+}
+template<>
+inline int wfile::vprint(const wfile::StringType format_, va_list args_)
+{
+	return vfwprintf(_File(), format_.c_str(), args_);
+}
+template<>
+inline int wfile::print(const wfile::StringType format_, ...)
+{
+	va_list args; va_start(args, format_);
+	return TRAP_RET( vprint(format_, args), va_end(args) );
+}
+
+// file_stream
 template<typename CharType>
 class file_stream {
 
@@ -384,6 +427,12 @@ public:
     inline file_stream& operator<<(bool n)
     { return logNumber(n); }
 
+    inline file_stream& operator<<(CharType c)
+    {
+		_file.putc(c);
+		return *this;
+	}
+
     inline file_stream& operator<<
         (file_stream& (*_pf)(file_stream&))
     {
@@ -396,7 +445,7 @@ private:
     template<typename T>
     inline file_stream& logNumber(T &n)
     {
-        _file.print(deduceSpecifier(n), n);
+        _file.print(deduceSpecifier<T, CharType>(n), n);
         return *this;
     }
 
@@ -406,15 +455,6 @@ template<typename CharType>
 inline file_stream<CharType>&
     endl(file_stream<CharType> &ls)
 { return ls.newLine(); }
-
-
-typedef basic_file<char> file;
-typedef basic_file<wchar_t> wfile;
-typedef basic_file<char16_t> u16file;
-typedef basic_file<char32_t> u32file;
-
-static file scrin(stdin);
-static file scrout(stdout);
 
 /*
 template<typename CharType>
