@@ -20,6 +20,8 @@
 namespace donny {
 namespace filesystem {
 
+// file_size
+
 uintmax_t file_size(std::ifstream &fs) {
     if (!fs.is_open()) return 0;
 
@@ -69,6 +71,27 @@ uintmax_t file_size(FILE* f) {
     fseek(f, curpos, SEEK_SET);
     
     return size;
+}
+
+// readString and writeString
+
+template<typename CharType>
+inline std::basic_string<CharType> readString(basic_file<CharType> f)
+{
+	using StringType = std::basic_string<CharType>;
+
+	if (!f.is_open()) return StringType();
+
+	int len = 0;
+	f.read(&len);
+	return f.gets(len);
+}
+template<typename CharType>
+inline uint writeString(basic_file<CharType> f, std::basic_string<CharType> str)
+{
+	int len = str.length();
+	f.write(&len);
+	return f.puts(str, len);
 }
 
 }
