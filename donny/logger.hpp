@@ -1,10 +1,19 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * logger.hpp - A easy logger for c++
+ * base : base.hpp, file.hpp
+ * 
+ * Author : Donny
+ */
+
 #pragma once
 
 #include <cstdio>
 #include <cstdarg>
 #include <string>
 
-#include "filesystem.hpp"
+#include "file.hpp"
 
 namespace donny {
 

@@ -1,3 +1,12 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * file.hpp - basic_file, file_stream
+ * base : base.hpp
+ * 
+ * Author : Donny
+ */
+
 #pragma once
 
 #include <cstdio>

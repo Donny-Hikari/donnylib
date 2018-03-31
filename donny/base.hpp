@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * base.hpp - basic marco definition, classes and functions declaration
+ * 
+ * Author : Donny
+ */
+
 #pragma once
 
 namespace donny {

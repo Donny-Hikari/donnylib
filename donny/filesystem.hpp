@@ -1,3 +1,12 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * filesystem.hpp - classes and functions for filesystem
+ * base : base.hpp, file.hpp
+ * 
+ * Author : Donny
+ */
+
 #pragma once
 
 #include <cstdio>
