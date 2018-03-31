@@ -37,16 +37,16 @@ public:
         PREFIX_COUNT
     };
 
-    logger(logger_file out_ = filesystem::scrout)
+    logger(logger_file out_ = filesystem::dout)
         : _out(out_)
         , _stream(_out)
     {
-        _prefixs[NONE] = "";
-        _prefixs[INFO] = "[INFO] ";
-        _prefixs[ERR] = "[ERR] ";
-        _prefixs[DEB] = "[DEB] ";
-        _prefixs[VERB] = "[VERB] ";
-        _prefixs[LOG] = "[INFO] ";
+        _prefixs[NONE] = AUTO_AW(CharType, "");
+        _prefixs[INFO] = AUTO_AW(CharType, "[INFO] ");
+        _prefixs[ERR] = AUTO_AW(CharType, "[ERR] ");
+        _prefixs[DEB] = AUTO_AW(CharType, "[DEB] ");
+        _prefixs[VERB] = AUTO_AW(CharType, "[VERB] ");
+        _prefixs[LOG] = AUTO_AW(CharType, "[INFO] ");
     }
 
     inline int vprint(const StringType format_, va_list args_)
@@ -177,6 +177,12 @@ public:
     {
         // print(_prefixs[NONE]); // <-- NONE is ""
         return _stream << any;
+    }
+    
+    inline logger_stream& operator<<
+        (logger_stream& (*_pf)(logger_stream&))
+    {
+        return _stream << _pf;
     }
 
 private:

@@ -11,6 +11,7 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <cwchar>
 #include <string>
 
 #include "base.hpp"
@@ -119,39 +120,6 @@ public:
 		fseek(_File(), curpos, current);
 		return size;
 	}
-	
-	inline bool is_open() const
-	{
-		if (_File()) return true;
-		else return false;
-	}
-	inline bool eof() const
-	{
-		if ((_File() != nullptr) && (feof(_File()) == 0)) return false;
-		return true;
-	}
-	inline int error() const
-	{
-		return ferror(_File());
-	}
-	inline void clearerr()
-	{
-		::clearerr(_File());
-	}
-
-	inline SizeType tell() const
-	{
-		return ftell(_File());
-	}
-	inline bool seek(SizeType offset, SeekOrigin origin)
-	{
-		if (fseek(_File(), offset, origin)) return false;
-		else return true;
-	}
-	inline void rewind()
-	{
-		return ::rewind(_File());
-	}
 
 	inline bool open(const_str filename, const_str mode)
 	{
@@ -186,6 +154,39 @@ public:
 		}
 		_pFile = nullptr;
 		return bSucceed;
+	}
+	
+	inline bool is_open() const
+	{
+		if (_File()) return true;
+		else return false;
+	}
+	inline bool eof() const
+	{
+		if ((_File() != nullptr) && (feof(_File()) == 0)) return false;
+		return true;
+	}
+	inline int error() const
+	{
+		return ferror(_File());
+	}
+	inline void clearerr()
+	{
+		::clearerr(_File());
+	}
+
+	inline SizeType tell() const
+	{
+		return ftell(_File());
+	}
+	inline bool seek(SizeType offset, SeekOrigin origin)
+	{
+		if (fseek(_File(), offset, origin)) return false;
+		else return true;
+	}
+	inline void rewind()
+	{
+		return ::rewind(_File());
 	}
 
 	inline CharType getc()
@@ -307,7 +308,7 @@ private:
 		uint _refCount = 1;
 	} *_pFile = nullptr;
 
-	FILE * _File()
+	FILE * _File() const
 	{
 		if (_pFile == nullptr) return nullptr;
 		return _pFile->_file;
@@ -325,9 +326,12 @@ typedef basic_file<wchar_t> wfile;
 typedef basic_file<char16_t> u16file;
 typedef basic_file<char32_t> u32file;
 
-static file scrin(stdin);
-static file scrout(stdout);
-static file screrr(stderr);
+static file din(stdin);
+static file dout(stdout);
+static file derr(stderr);
+
+static file dnull("/dev/null", "wb");
+static wfile wdnull("/dev/null", "wb");
 
 template<>
 inline int file::vscanf(const file::StringType format_, va_list args_)
@@ -343,7 +347,14 @@ inline int file::scanf(const file::StringType format_, ...)
 template<>
 inline int file::vprint(const file::StringType format_, va_list args_)
 {
-	return vfprintf(_File(), format_.c_str(), args_);
+	// return vfprintf(_File(), format_.c_str(), args_);
+	va_list args;
+	va_copy(args,args_);
+	int sz = vfprintf(dnull.getFILE(), format_.c_str(), args);
+	va_end(args);
+	char buf[sz+1];
+	vsnprintf(buf, sz+1, format_.c_str(), args_);
+	return write(buf, sz);
 }
 template<>
 inline int file::print(const file::StringType format_, ...)
@@ -367,7 +378,14 @@ inline int wfile::scanf(const wfile::StringType format_, ...)
 template<>
 inline int wfile::vprint(const wfile::StringType format_, va_list args_)
 {
-	return vfwprintf(_File(), format_.c_str(), args_);
+	va_list args;
+	va_copy(args,args_);
+	int sz = vfwprintf(wdnull.getFILE(), format_.c_str(), args);
+	va_end(args);
+	wchar_t buf[sz+1];
+	vswprintf(buf, sz+1, format_.c_str(), args_);
+	return write(buf, sz);
+	// return vfwprintf(_File(), format_.c_str(), args_);
 }
 template<>
 inline int wfile::print(const wfile::StringType format_, ...)
@@ -396,18 +414,24 @@ public:
         return *this;
     }
 
-    inline file_stream& operator<<(StringType str)
+    inline file_stream& operator<<(const StringType str)
     {
         _file.print(str);
         return *this;
     }
 
-    inline file_stream& operator<<(RawString str)
+    inline file_stream& operator<<(const void* str)
     {
-        _file.print(str);
+        _file.print((const RawString)str);
         return *this;
     }
 
+    inline file_stream& operator<<(unsigned char n)
+    { return logNumber(n); }
+    inline file_stream& operator<<(short n)
+    { return logNumber(n); }
+    inline file_stream& operator<<(unsigned short n)
+    { return logNumber(n); }
     inline file_stream& operator<<(int n)
     { return logNumber(n); }
     inline file_stream& operator<<(unsigned int n)

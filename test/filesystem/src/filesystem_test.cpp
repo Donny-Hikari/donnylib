@@ -41,9 +41,9 @@ void stdinout()
 {
     string str;
     cout << "Enter some text, end with a return: ";
-    str = scrin.gets('\n');
+    str = din.gets('\n');
     cout << "You have enter: ";
-    scrout.puts(str);
+    dout.puts(str);
 }
 
 int main()
