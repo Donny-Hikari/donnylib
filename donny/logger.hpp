@@ -2,7 +2,7 @@
  * donnylib - A lightweight library for c++
  * 
  * logger.hpp - A easy logger for c++
- * base : base.hpp, file.hpp, file_stream.hpp
+ * base : base.hpp, file.hpp, file_stream.hpp, datetime.hpp
  * 
  * Author : Donny
  */
@@ -11,10 +11,12 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <ctime>
 #include <string>
 
 #include "file.hpp"
 #include "file_stream.hpp"
+#include "datetime.hpp"
 
 namespace donny {
 
@@ -41,6 +43,7 @@ public:
     logger(logger_file out_ = filesystem::dout)
         : _out(out_)
         , _stream(_out)
+        , _bUseTimeStamp(true)
     {
         _prefixs[NONE] = AUTO_AW(CharType, "");
         _prefixs[INFO] = AUTO_AW(CharType, "[INFO] ");
@@ -110,65 +113,97 @@ public:
             _prefixs[tp] = newPrefix;
         return oldPrefix;
     }
-
     inline const StringType getPrefix(PrefixType tp) const
     {
         return _prefixs[tp];
+    }
+
+    inline int putTimeStamp()
+    {
+        return print(_getUTCTime());
+    }
+    inline void useTimeStamp(bool bUseTimeStamp_)
+    {
+        _bUseTimeStamp = bUseTimeStamp_;
+    }
+    inline bool isTimeStampOn() const
+    {
+        return _bUseTimeStamp;
     }
 
     inline int i(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( print(_prefixs[INFO]) + vprintln(format_, args), va_end(args) );
+        return TRAP_RET( putTimeStamp()
+                       + print(_prefixs[INFO])
+                       + vprintln(format_, args)
+                       , va_end(args) );
     }
     inline int e(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( print(_prefixs[ERR]) + vprintln(format_, args), va_end(args) );
+        return TRAP_RET( putTimeStamp()
+                       + print(_prefixs[ERR])
+                       + vprintln(format_, args)
+                       , va_end(args) );
     }
     inline int d(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( print(_prefixs[DEB]) + vprintln(format_, args), va_end(args) );
+        return TRAP_RET( putTimeStamp()
+                       + print(_prefixs[DEB])
+                       + vprintln(format_, args)
+                       , va_end(args) );
     }
     inline int v(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( print(_prefixs[VERB]) + vprintln(format_, args), va_end(args) );
+        return TRAP_RET( putTimeStamp()
+                       + print(_prefixs[VERB])
+                       + vprintln(format_, args)
+                       , va_end(args) );
     }
     inline int log(const StringType format_, ...)
     {
         va_list args;
         va_start(args, format_);
-        return TRAP_RET( print(_prefixs[LOG]) + vprintln(format_, args), va_end(args) );
+        return TRAP_RET( putTimeStamp()
+                       + print(_prefixs[LOG])
+                       + vprintln(format_, args)
+                       , va_end(args) );
     }
 
     inline logger_stream& i()
     {
+        putTimeStamp();
         print(_prefixs[INFO]);
         return _stream;
     }
     inline logger_stream& e()
     {
+        putTimeStamp();
         print(_prefixs[ERR]);
         return _stream;
     }
     inline logger_stream& d()
     {
+        putTimeStamp();
         print(_prefixs[DEB]);
         return _stream;
     }
     inline logger_stream& v()
     {
+        putTimeStamp();
         print(_prefixs[VERB]);
         return _stream;
     }
     inline logger_stream& log()
     {
+        putTimeStamp();
         print(_prefixs[LOG]);
         return _stream;
     }
@@ -176,6 +211,7 @@ public:
     template<typename AnyType>
     inline logger_stream& operator<<(AnyType any)
     {
+        putTimeStamp();
         // print(_prefixs[NONE]); // <-- NONE is ""
         return _stream << any;
     }
@@ -183,6 +219,7 @@ public:
     inline logger_stream& operator<<
         (logger_stream& (*_pf)(logger_stream&))
     {
+        putTimeStamp();
         return _stream << _pf;
     }
 
@@ -191,6 +228,18 @@ private:
     logger_stream _stream;
 
     StringType _prefixs[PREFIX_COUNT];
+
+    bool _bUseTimeStamp;
+
+    const RawString dtformat =
+        AUTO_AW(CharType, "[%s %s %02d %02d:%02d:%02d %04d]");
+
+    StringType _getUTCTime()
+    {
+        time_t now = time(nullptr);
+        tm *gmtm = gmtime(&now);
+        return datetime::getUTCTime(gmtm, dtformat);
+    }
 
 };
 
