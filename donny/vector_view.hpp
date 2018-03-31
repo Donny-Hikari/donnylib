@@ -13,18 +13,26 @@ class vector_view {
     typedef T* pointer;
     typedef const T* const_pointer;
 
+    typedef std::size_t size_t;
+
     T* _p = nullptr;
-    std::size_t _sz = 0;
+    size_t _sz = 0;
 
 public:
     typedef const_pointer const_iterator;
     typedef pointer iterator;
 
-    template<std::size_t N>
+    template<size_t N>
     vector_view(T (&arr)[N])
     {
         _p = arr;
         _sz = N;
+    }
+
+    vector_view(T* pt, size_t sz)
+    {
+        _p = pt;
+        _sz = sz;
     }
 
     vector_view(std::initializer_list<T> arr)
@@ -39,20 +47,30 @@ public:
         _sz = that._sz;
     }
 
-    std::size_t size() const { return _sz; }
+    size_t size() const { return _sz; }
 
     pointer data() { return _p; }
     iterator begin() { return _p; }
     iterator end() { return _p + _sz; }
-    reference operator[](std::size_t n) {
-        return n < _sz ? _p[n] : throw std::out_of_range("vector_view");
+    reference operator[](size_t n) {
+        if (n >= _sz)
+            throw std::out_of_range("vector_view");
+        return _p[n];
+        // This will cause memory access violation
+        // return n < _sz ? _p[n] : throw std::out_of_range("vector_view");
     }
 
-    const_pointer data() const { return _p; }
-    const_iterator begin() const { return _p; }
-    const_iterator end() const { return _p + _sz; }
-    const_reference operator[](std::size_t n) const {
-        return n < _sz ? _p[n] : throw std::out_of_range("vector_view");
+    const_pointer data() const {
+         printf("CALL ME\n");  return _p; }
+    const_iterator begin() const {
+         printf("CALL ME\n");  return _p; }
+    const_iterator end() const {
+         printf("CALL ME\n");  return _p + _sz; }
+    const_reference operator[](size_t n) const {
+        printf("CALL ME\n"); 
+        if (n >= _sz)
+            throw std::out_of_range("vector_view");
+        return _p[n];
     }
 
 };

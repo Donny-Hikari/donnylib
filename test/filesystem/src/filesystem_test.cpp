@@ -7,10 +7,11 @@
 #include <donny/filesystem.hpp>
 
 using namespace std;
+using namespace donny::filesystem;
 
 void writefile()
 {
-    donny::filesystem::u16file ofs("test.txt", "wb");
+    u16file ofs("test.txt", "wb");
     // locale loc(locale(), new codecvt_utf8_utf16<wchar_t>);
     u16string str = u"豆沙包";
     ofs.puts(str);
@@ -20,7 +21,7 @@ void writefile()
 
 void readfile()
 {
-    donny::filesystem::u16file ifs("test.txt", "rb");
+    u16file ifs("test.txt", "rb");
 
     // string str(10, '\0');
     // ifs.read((char*)str.c_str(), 10);
@@ -36,8 +37,15 @@ void readfile()
     cout << str << endl;
 }
 
+void stdinout()
+{
+    string strin = scrin.gets('\n');
+    scrout.puts(strin);
+}
+
 int main()
 {
+    stdinout();
     writefile();
     readfile();
     return 0;

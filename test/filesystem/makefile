@@ -1,15 +1,15 @@
 #!gmake
 
 RM        ?=   rm -f
-SRC       ?=   test_filesystem.cpp
+SRC       ?=   src/*.cpp
 BIN       ?=   bin/test
-CFLAG     ?=   -lstdc++ -std=c++11
+CFLAG     ?=   -std=c++11
 
 MKDIR     ?=   mkdir -p
 
 build:
 	$(MKDIR) $(dir $(BIN))
-	$(CC) $(SRC) -o $(BIN) $(CFLAG)
+	$(CXX) $(SRC) -o $(BIN) $(CFLAG)
 
 run:
 	cd $(dir $(BIN)) && pwd && ./$(notdir $(BIN))

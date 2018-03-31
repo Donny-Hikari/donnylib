@@ -3,11 +3,11 @@
 #include <cstdio>
 #include <string>
 
+namespace donny {
+	
 #if __WIN32 || __WIN64
 #define __WINOS__ 1
 #endif
-
-namespace donny {
 
 template<typename CharType>
 class simple_string
@@ -112,12 +112,13 @@ class basic_file
 		EOFValue = EOFDeterminer<CharType>::Val();
 
 public:
+
 #ifdef __WINOS__
-	const CharType LineBreak[2] = { '\r', '\n' };
+	const CharType lineBreak[2] = { '\r', '\n' };
 #elif __linux__
-	const CharType LineBreak[1] = { '\n' };
+	const CharType lineBreak[1] = { '\n' };
 #else // __MACH__
-	const CharType LineBreak[1] = { '\r' };
+	const CharType lineBreak[1] = { '\r' };
 #endif
 
 	enum SeekOrigin { begin = SEEK_SET, current = SEEK_CUR, end = SEEK_END };
@@ -129,13 +130,14 @@ public:
 	{
 		open(filename, mode);
 	}
-	inline basic_file(const basic_file &that) : basic_file()
-	{
-		operator=(that);
-	}
 	inline ~basic_file()
 	{
 		close();
+	}
+
+	inline basic_file(const basic_file &that) : basic_file()
+	{
+		operator=(that);
 	}
 	inline basic_file & operator=(const basic_file &that)
 	{
@@ -143,6 +145,19 @@ public:
 		_pFile = that._pFile;
 		if (_pFile) ++_pFile->_refCount;
 		return *this;
+	}
+	
+	inline basic_file(FILE* cfile)
+	{
+		if (cfile == nullptr) return;
+		_pFile = new FileStruct;
+		_SetFile(cfile);
+		_pFile->_refCount = 2; // Cause there already has another
+							   // reference to this file
+	}
+	inline const FILE* getFILE()
+	{
+		return _File();
 	}
 
 	inline SizeType file_size() const
@@ -160,7 +175,9 @@ public:
 	inline bool open(const_str filename, const_str mode)
 	{
 		close();
+		
 		_pFile = new FileStruct;
+
 #ifdef __WINOS__
 		FILE *f = nullptr;
 		fopen_s(&f, filename, mode);
@@ -169,6 +186,9 @@ public:
 		_SetFile(fopen(filename, mode));
 #endif
 		if (!_File()) return false;
+		
+		++_pFile->_refCount;
+
 		return true;
 	}
 	inline bool close()
@@ -328,12 +348,16 @@ private:
 		if (_pFile == nullptr || _pFile->_file) return;
 		_pFile->_file = file_;
 	}
+
 };
 
 typedef basic_file<char> file;
 typedef basic_file<wchar_t> wfile;
 typedef basic_file<char16_t> u16file;
 typedef basic_file<char32_t> u32file;
+
+static file scrin(stdin);
+static file scrout(stdout);
 
 /*
 template<typename CharType>
