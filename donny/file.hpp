@@ -331,7 +331,7 @@ static file dout(stdout);
 static file derr(stderr);
 
 static file dnull("/dev/null", "wb");
-static wfile wdnull("/dev/null", "wb");
+static wfile dwnull("/dev/null", "wb");
 
 template<>
 inline int file::vscanf(const file::StringType format_, va_list args_)
@@ -380,7 +380,7 @@ inline int wfile::vprint(const wfile::StringType format_, va_list args_)
 {
 	va_list args;
 	va_copy(args,args_);
-	int sz = vfwprintf(wdnull.getFILE(), format_.c_str(), args);
+	int sz = vfwprintf(dwnull.getFILE(), format_.c_str(), args);
 	va_end(args);
 	wchar_t buf[sz+1];
 	vswprintf(buf, sz+1, format_.c_str(), args_);

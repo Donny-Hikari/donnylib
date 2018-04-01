@@ -109,6 +109,10 @@ int test_screen_logger()
     log.useTimeStamp(false);
     log.log() << "No timestamp." << endl;
 
+    log.log() << "The following line shouldn't be displayed." << endl;
+    log.close();
+    log.log() << "This line won't be displayed." << endl;
+
     return 0;
 }
 

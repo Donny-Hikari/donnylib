@@ -54,6 +54,12 @@ public:
         _prefixs[LOG] = AUTO_AW(CharType, "[INFO] ");
     }
 
+    close()
+    {
+        _out.close();
+        _out = logger_file("/dev/null", "wb");
+    }
+
     inline int vprint(const StringType format_, va_list args_)
     {
         return _out.vprint(format_, args_);
