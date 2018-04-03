@@ -79,36 +79,36 @@ public:
         return TRAP_RET( vprintln(format_, args), va_end(args) );
     }
 
-	inline CharType putc(CharType c)
-	{
+    inline CharType putc(CharType c)
+    {
         return _out.putc(c);
-	}
-	inline uint puts(const StringType src, bool bWithBlankChar = false)
-	{
+    }
+    inline uint puts(const StringType src, bool bWithBlankChar = false)
+    {
         return _out.puts(src, bWithBlankChar);
-	}
-	inline uint puts(const StringType src, SizeType n)
-	{
+    }
+    inline uint puts(const StringType src, SizeType n)
+    {
         return _out.puts(src, n);
-	}
-	inline uint puts(const StringType src, SizeType offset, SizeType n)
-	{
+    }
+    inline uint puts(const StringType src, SizeType offset, SizeType n)
+    {
         return _out.puts(src, offset, n);
-	}
-	template<typename T>
-	inline uint write(const T *src, uint count = 1)
-	{
+    }
+    template<typename T>
+    inline uint write(const T *src, uint count = 1)
+    {
         return _out.write(src, count);
-	}
-	inline uint write(const void *src, uint elementSize, uint count)
-	{
+    }
+    inline uint write(const void *src, uint elementSize, uint count)
+    {
         return _out.write(src, elementSize, count);
-	}
+    }
     
-	inline int flush()
-	{
+    inline int flush()
+    {
         return _out.flush();
-	}
+    }
 
     /**
      *  @param tp : NONE < tp < PREFIX_COUNT
@@ -263,5 +263,9 @@ private:
     }
 
 };
+
+static logger<char> logstdout(filesystem::dout);
+static logger<char> logstderr(filesystem::derr);
+static logger<char> logstdnull(filesystem::dnull);
 
 }

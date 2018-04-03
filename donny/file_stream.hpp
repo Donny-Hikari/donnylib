@@ -104,5 +104,8 @@ inline file_stream<CharType>&
     endl(file_stream<CharType> &ls)
 { return ls.newLine(); }
 
-}
-}
+} // namespace filesystem
+
+using filesystem::endl;
+
+} // namespace donny

@@ -1,7 +1,9 @@
 
 #include <string>
-#include <boost/test/minimal.hpp>
 #include <iostream>
+#include <chrono>
+
+#include <boost/test/minimal.hpp>
 
 #include <donny/logger.hpp>
 
@@ -92,7 +94,7 @@ int test_screen_logger()
 
     log.println("Hello World");
 
-    log << "True: " << true << endl;
+    log << "True: " << (1 == 1) << endl;
     log.i() << "int: " << 123 << endl;
     log.e() << "double: " << 1.0f/3 << endl;
     log.d() << "char: " << 'c' << endl;
@@ -109,9 +111,29 @@ int test_screen_logger()
     log.useTimeStamp(false);
     log.log() << "No timestamp." << endl;
 
-    log.log() << "The following line shouldn't be displayed." << endl;
+    log.log() << "The next line shouldn't be displayed." << endl;
     log.close();
     log.log() << "This line won't be displayed." << endl;
+
+    return 0;
+}
+
+int pressure_test()
+{
+    using namespace std::chrono;
+
+    printf("Carrying out pressure test...\n");
+    
+    const ulong times = 999999L;
+    auto tb = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+    // tb = time(NULL);
+    donny::logger<> log(file("pressure-test.txt", "w"));
+    for (ulong i = 0; i < times; ++i)
+        log << i << " messages" << endl;
+    // te = time(NULL);
+    auto te = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+
+    printf("Printed %d messages in %ld ms.\n", times, te - tb);
 
     return 0;
 }
@@ -121,6 +143,7 @@ int test_main(int, char**)
     test_logger();
     test_wlogger();
     test_screen_logger();
+    pressure_test();
 
     return 0;
 }
