@@ -28,7 +28,7 @@ public:
     using StringType = typename FileType::StringType;
     using RawString = CharType*;
 
-    file_stream(FileType& f)
+    file_stream(FileType f)
         : _file(f)
     {
     }
@@ -72,8 +72,17 @@ public:
     { return logNumber(n); }
     inline file_stream& operator<<(long double n)
     { return logNumber(n); }
-    inline file_stream& operator<<(bool n)
-    { return logNumber(n); }
+    // inline file_stream& operator<<(bool n)
+    // { return logNumber(n); }
+
+    inline file_stream& operator<<(bool b)
+    {
+        if (b)
+            _file.print(AUTO_AW(CharType, "True"));
+        else
+            _file.print(AUTO_AW(CharType, "False"));
+        return *this;
+    }
 
     inline file_stream& operator<<(CharType c)
     {
@@ -88,7 +97,7 @@ public:
     }
 
 private:
-    FileType& _file;
+    FileType _file;
 
     template<typename T>
     inline file_stream& logNumber(T &n)

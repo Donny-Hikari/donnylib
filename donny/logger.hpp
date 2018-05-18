@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include <cstring>
 #include <string>
 
 #include "file.hpp"
@@ -46,6 +47,8 @@ public:
         , _bUseTimeStamp(true)
         , _dtFormat(AUTO_AW(CharType, "[%a %b %d %T %Y]"))
     {
+        memset(_bEnableLevel, 1, sizeof(_bEnableLevel));
+
         _prefixs[NONE] = AUTO_AW(CharType, "");
         _prefixs[INFO] = AUTO_AW(CharType, "[INFO] ");
         _prefixs[ERR] = AUTO_AW(CharType, "[ERR] ");
@@ -54,10 +57,11 @@ public:
         _prefixs[LOG] = AUTO_AW(CharType, "[INFO] ");
     }
 
-    close()
+    inline void close()
     {
         _out.close();
         _out = logger_file("/dev/null", "wb");
+        _stream = logger_stream(_out);
     }
 
     inline int vprint(const StringType format_, va_list args_)
@@ -113,6 +117,21 @@ public:
     /**
      *  @param tp : NONE < tp < PREFIX_COUNT
      */
+    inline bool enableLogLevel(PrefixType tp, bool bEnable)
+    {
+        bool oldEnable = _bEnableLevel[tp];
+        if (tp > NONE && tp < PREFIX_COUNT)
+            _bEnableLevel[tp] = bEnable;
+        return oldEnable;        
+    }
+    inline const bool isLogLevelEnable(PrefixType tp) const
+    {
+        return _bEnableLevel[tp];
+    }
+
+    /**
+     *  @param tp : NONE < tp < PREFIX_COUNT
+     */
     inline StringType setPrefix(PrefixType tp, StringType newPrefix)
     {
         StringType oldPrefix = _prefixs[tp];
@@ -150,6 +169,8 @@ public:
 
     inline int i(const StringType format_, ...)
     {
+        if (!_bEnableLevel[INFO]) return 0;
+
         va_list args;
         va_start(args, format_);
         return TRAP_RET( _logTimeStamp()
@@ -159,6 +180,8 @@ public:
     }
     inline int e(const StringType format_, ...)
     {
+        if (!_bEnableLevel[ERR]) return 0;
+
         va_list args;
         va_start(args, format_);
         return TRAP_RET( _logTimeStamp()
@@ -168,6 +191,8 @@ public:
     }
     inline int d(const StringType format_, ...)
     {
+        if (!_bEnableLevel[DEB]) return 0;
+
         va_list args;
         va_start(args, format_);
         return TRAP_RET( _logTimeStamp()
@@ -177,6 +202,8 @@ public:
     }
     inline int v(const StringType format_, ...)
     {
+        if (!_bEnableLevel[VERB]) return 0;
+
         va_list args;
         va_start(args, format_);
         return TRAP_RET( _logTimeStamp()
@@ -186,6 +213,8 @@ public:
     }
     inline int log(const StringType format_, ...)
     {
+        if (!_bEnableLevel[LOG]) return 0;
+
         va_list args;
         va_start(args, format_);
         return TRAP_RET( _logTimeStamp()
@@ -196,30 +225,40 @@ public:
 
     inline logger_stream& i()
     {
+        if (!_bEnableLevel[INFO]) return _null_stream;
+
         _logTimeStamp();
         print(_prefixs[INFO]);
         return _stream;
     }
     inline logger_stream& e()
     {
+        if (!_bEnableLevel[ERR]) return _null_stream;
+
         _logTimeStamp();
         print(_prefixs[ERR]);
         return _stream;
     }
     inline logger_stream& d()
     {
+        if (!_bEnableLevel[DEB]) return _null_stream;
+
         _logTimeStamp();
         print(_prefixs[DEB]);
         return _stream;
     }
     inline logger_stream& v()
     {
+        if (!_bEnableLevel[VERB]) return _null_stream;
+
         _logTimeStamp();
         print(_prefixs[VERB]);
         return _stream;
     }
     inline logger_stream& log()
     {
+        if (!_bEnableLevel[LOG]) return _null_stream;
+
         _logTimeStamp();
         print(_prefixs[LOG]);
         return _stream;
@@ -241,9 +280,12 @@ public:
     }
 
 private:
+    static logger_stream _null_stream;
+
     logger_file _out;
     logger_stream _stream;
 
+    bool _bEnableLevel[PREFIX_COUNT];
     StringType _prefixs[PREFIX_COUNT];
 
     StringType _dtFormat;
@@ -263,6 +305,9 @@ private:
     }
 
 };
+template<typename CharType>
+typename logger<CharType>::logger_stream logger<CharType>::_null_stream =
+    typename logger<CharType>::logger_stream(typename logger<CharType>::logger_file("/dev/null", "wb"));
 
 static logger<char> logstdout(filesystem::dout);
 static logger<char> logstderr(filesystem::derr);
