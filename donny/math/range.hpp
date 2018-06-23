@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * range.hpp - a class to describe range limit.
+ * dependency: format_string
+ * 
+ * Author : Donny
+ */
 
 #pragma once
 

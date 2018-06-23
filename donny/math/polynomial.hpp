@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * polynomial.hpp - a non-negative integer exponent polynomial class.
+ * dependency: format_string
+ * 
+ * Author : Donny
+ */
 
 #pragma once
 

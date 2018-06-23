@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * format_string.hpp - a class to help to format string.
+ * dependency: stringstream
+ * 
+ * Author : Donny
+ */
 
 #pragma once
 

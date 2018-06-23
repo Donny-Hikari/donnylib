@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * vector_view.hpp - view an array like a vector
+ * 
+ * Author : Donny
+ */
+
 #pragma once
 
 #include <initializer_list>

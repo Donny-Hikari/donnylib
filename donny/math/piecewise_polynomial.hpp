@@ -1,3 +1,11 @@
+/**
+ * donnylib - A lightweight library for c++
+ * 
+ * piecewise_polynomial.hpp - a piecewise polynomial class.
+ * dependency: format_string, polynomial, range
+ * 
+ * Author : Donny
+ */
 
 #pragma once
 

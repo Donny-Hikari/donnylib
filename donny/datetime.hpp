@@ -2,7 +2,7 @@
  * donnylib - A lightweight library for c++
  * 
  * datetime.hpp - Get datetime easily.
- * base : base.hpp, file.hpp
+ * dependency : base.hpp, file.hpp
  * 
  * Author : Donny
  */

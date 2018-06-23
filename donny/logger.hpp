@@ -2,7 +2,7 @@
  * donnylib - A lightweight library for c++
  * 
  * logger.hpp - A easy logger for c++
- * base : base.hpp, file.hpp, file_stream.hpp, datetime.hpp
+ * dependency : base.hpp, file.hpp, file_stream.hpp, datetime.hpp
  * 
  * Author : Donny
  */

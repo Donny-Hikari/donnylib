@@ -2,7 +2,7 @@
  * donnylib - A lightweight library for c++
  * 
  * file_stream.hpp - stream of basic_file
- * base : base.hpp, file.hpp
+ * dependency : base.hpp, file.hpp
  * 
  * Author : Donny
  */
