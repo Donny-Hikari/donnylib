@@ -42,21 +42,21 @@ constexpr size_t length_of_array(T (&arr)[N]) {
 class AUTOAW_HELPER
 {
 public:
-	constexpr AUTOAW_HELPER(char *str, wchar_t *wstr)
+	constexpr AUTOAW_HELPER(const char *str, const wchar_t *wstr)
 		: _str(str), _wstr(wstr)
 	{
 	}
 
-	constexpr operator char*() { return _str; }
-	constexpr operator wchar_t*() { return _wstr; }
+	constexpr operator const char*() { return _str; }
+	constexpr operator const wchar_t*() { return _wstr; }
 
 private:
-	char* _str;
-	wchar_t* _wstr;
+	const char* _str;
+	const wchar_t* _wstr;
 	
 };
 #define AUTO_AW(_CharType_, _str_) \
-	( (_CharType_*) AUTOAW_HELPER(_str_, L##_str_) )
+	( (const _CharType_*) AUTOAW_HELPER(_str_, L##_str_) )
 
 
 // deduce the specifier for printf or scanf

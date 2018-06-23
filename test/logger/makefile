@@ -3,7 +3,7 @@
 RM        ?=   rm -f
 SRC       ?=   src/*.cpp
 BIN       ?=   bin/test
-CFLAG     ?=   -std=c++17
+CFLAG     ?=   -std=c++11
 
 MKDIR     ?=   mkdir -p
 

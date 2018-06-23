@@ -133,7 +133,7 @@ int pressure_test()
     // te = time(NULL);
     auto te = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 
-    printf("Printed %d messages in %ld ms.\n", times, te - tb);
+    printf("Printed %lu messages in %ld ms.\n", times, te - tb);
 
     return 0;
 }

@@ -63,7 +63,7 @@ const DateTimeString<CharType>
 
 // dtformat example : %b %a %d %T %Y
 template<>
-const DateTimeString<char>
+inline const DateTimeString<char>
     getUTCTime<char>(tm *ptm, const char *dtformat)
 {
     if (ptm == nullptr || dtformat == nullptr)
@@ -77,7 +77,7 @@ const DateTimeString<char>
 
 // dtformat example : %b %a %d %T %Y
 template<>
-const DateTimeString<wchar_t>
+inline const DateTimeString<wchar_t>
     getUTCTime<wchar_t>(tm *ptm, const wchar_t *dtformat)
 {
     if (ptm == nullptr || dtformat == nullptr)

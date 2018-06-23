@@ -122,7 +122,7 @@ public:
         bool oldEnable = _bEnableLevel[tp];
         if (tp > NONE && tp < PREFIX_COUNT)
             _bEnableLevel[tp] = bEnable;
-        return oldEnable;        
+        return oldEnable;
     }
     inline const bool isLogLevelEnable(PrefixType tp) const
     {
